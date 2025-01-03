@@ -1,0 +1,23 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@mdi/font": "^7.4.47",
+    "buefy": "npm:@ntohq/buefy-next@^0.1.4",
+    "bulma": "0.9.4",
+    "nuxt": "^3.15.0",
+    "vue-router": "latest",
+    "vue": "latest"
+  },
+  "devDependencies": {
+    "sass": "1.77.6"
+  }
+}

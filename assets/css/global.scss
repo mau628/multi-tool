@@ -1,0 +1,97 @@
+@import "bulma/sass/utilities/_all";
+
+$debug-background-color: coral;
+$debug-background-color2: cyan;
+$debug-background-color3: magenta;
+
+.is-debug {
+    background-color: $debug-background-color !important;
+
+    .is-debug {
+        background-color: $debug-background-color2 !important;
+
+        .is-debug {
+            background-color: $debug-background-color3 !important;
+        }
+    }
+}
+
+
+$primary: #488DAB;
+$primary-light: findLightColor($primary);
+$primary-dark: findDarkColor($primary);
+$primary-invert: findColorInvert($primary);
+
+$secondary: #EB9028;
+$secondary-light: findLightColor($secondary);
+$secondary-dark: findDarkColor($secondary);
+$secondary-invert: findColorInvert($secondary);
+
+// Setup $colors to use as bulma classes (e.g. 'is-twitter')
+$colors: mergeColorMaps(("white": ($white,
+                $black,
+            ), s "black": ($black,
+                $white,
+            ),
+            "light": ($light,
+                $light-invert,
+            ),
+            "dark": ($dark,
+                $dark-invert,
+            ),
+            "primary": ($primary,
+                $primary-invert,
+                $primary-light,
+                $primary-dark,
+            ),
+            "secondary": ($secondary,
+                $secondary-invert,
+                $secondary-light,
+                $secondary-dark,
+            ),
+            "link": ($link,
+                $link-invert,
+                $link-light,
+                $link-dark,
+            ),
+            "info": ($info,
+                $info-invert,
+                $info-light,
+                $info-dark,
+            ),
+            "success": ($success,
+                $success-invert,
+                $success-light,
+                $success-dark,
+            ),
+            "warning": ($warning,
+                $warning-invert,
+                $warning-light,
+                $warning-dark,
+            ),
+            "danger": ($danger,
+                $danger-invert,
+                $danger-light,
+                $danger-dark,
+            ),
+        ),
+        $custom-colors);
+
+
+@import "bulma/bulma";
+@import "buefy/src/scss/buefy";
+
+.page-enter-active,
+.page-leave-active {
+    transition: all 0.2s;
+}
+
+.page-enter-from,
+.page-leave-to {
+    opacity: 0;
+    filter: blur(1rem);
+}
+
+.strike {
+    text-decoration: line-through;
+}

@@ -1,0 +1,15 @@
+{
+  "[typescript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "[vue]": {
+    "editor.defaultFormatter": "Vue.volar"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "html.format.wrapAttributes": "force-expand-multiline",
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "vue.format.wrapAttributes": "force-expand-multiline",
+}
