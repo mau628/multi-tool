@@ -20,25 +20,30 @@
       v-for="(order, orderKey) in orders"
     >
       <div class="b-table">
-        <b-field
-          label="Name"
-          label-position="inside"
-        >
-          <b-input
-            v-model="order.name"
-            type="text"
-          ></b-input>
+        <b-field grouped>
+          <b-field
+            label="Shipping Total"
+            label-position="inside"
+            expanded
+          >
+            <b-input
+              v-model="order.totalShipping"
+              type="number"
+            ></b-input>
+          </b-field>
+
+          <b-field
+            label="Order Total"
+            label-position="inside"
+            expanded
+          >
+            <b-input
+              type="number"
+              :value="orderTotal(order)"
+              disabled
+            ></b-input>
+          </b-field>
         </b-field>
-        <b-field
-          label="Shipping Total"
-          label-position="inside"
-        >
-          <b-input
-            v-model="order.totalShipping"
-            type="number"
-          ></b-input>
-        </b-field>
-        <span>Order Total: {{ orderTotal(order) }}</span>
 
         <div class="table-wrapper has-mobile-cards">
           <table class="table">
@@ -136,7 +141,6 @@ const orders = ref<Array<Order>>([])
 
 const addOrder = () => {
   let newOrder: Order = {
-    name: "",
     items: [],
     totalShipping: 0,
   };

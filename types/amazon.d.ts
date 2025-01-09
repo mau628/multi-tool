@@ -4,7 +4,6 @@ export interface Item {
 }
 
 export interface Order {
-  name: string;
   items: Item[];
   totalShipping: number;
 }
