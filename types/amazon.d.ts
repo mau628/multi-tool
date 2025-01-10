@@ -1,16 +1,20 @@
-export interface Item {
-  name: string;
-  price: number;
-}
-
 export interface Order {
-  items: Item[];
-  totalShipping: number;
+  items: Array<Item>
+  totalShipping: number
 }
 
-export interface ItemTotal {
-  price: number;
-  shipping: number;
-  fee: number;
-  total: number;
+export interface Params {
+  fee: number
+  minimumFee: number
+}
+
+export interface Item {
+  actualFee: number = 0.0
+  actualPrice: number = 0.0
+  fee: number = 0.0
+  name: string = ''
+  percentage: number = 0.0
+  price: number = 0.0
+  shipping: number = 0.0
+  total: number = 0.0
 }

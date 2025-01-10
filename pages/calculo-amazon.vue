@@ -23,7 +23,7 @@
     >
 
       <!-- Header -->
-      <div class="columns is-mobile is-1 is-variable">
+      <div class="columns is-mobile is-1 is-variable has-background-info-light">
         <div class="column is-3">
           <b-field
             label="Shipping Total"
@@ -46,8 +46,22 @@
             <b-input
               type="number"
               :value="orderTotal(order)"
-              disabled
-              placeholder="85.74"
+              readonly
+              placeholder="00.00"
+            ></b-input>
+          </b-field>
+        </div>
+        <div class="column is-3">
+          <b-field
+            label="Rate"
+            label-position="inside"
+            expanded
+          >
+            <b-input
+              type="number"
+              v-model.number="exchangeRate"
+              placeholder="00.00"
+              :readonly="useParams"
             ></b-input>
           </b-field>
         </div>
@@ -58,6 +72,7 @@
       <div
         class="columns is-multiline is-mobile is-1 is-variable"
         v-for="(item, key) in order.items"
+        :class="{ 'has-background-light': key % 2 !== 0, 'custom-row': true }"
       >
         <div class="column is-3">
           <b-field
@@ -84,45 +99,45 @@
           </b-field>
         </div>
         <div class="column is-5">
-          <ul>
-            <li>
-              <b-field
-                grouped
-                group-multiline
-              >
-                <div class="control">
-                  <b-taglist attached>
-                    <b-tag type="is-dark">Total</b-tag>
-                    <b-tag type="is-info">Q{{ itemTotal(order, item).total }}</b-tag>
-                  </b-taglist>
-                </div>
-                <div class="control">
-                  <b-taglist attached>
-                    <b-tag type="is-dark">%</b-tag>
-                    <b-tag type="is-info">{{ itemPercentage(order, item) }}</b-tag>
-                  </b-taglist>
-                </div>
-                <div class="control">
-                  <b-taglist attached>
-                    <b-tag type="is-dark">Price</b-tag>
-                    <b-tag type="is-info">Q{{ itemTotal(order, item).price }}</b-tag>
-                  </b-taglist>
-                </div>
-                <div class="control">
-                  <b-taglist attached>
-                    <b-tag type="is-dark">Tax</b-tag>
-                    <b-tag type="is-success">Q{{ itemTotal(order, item).fee }}</b-tag>
-                  </b-taglist>
-                </div>
-                <div class="control">
-                  <b-taglist attached>
-                    <b-tag type="is-dark">Shipping</b-tag>
-                    <b-tag type="is-primary">Q{{ itemTotal(order, item).shipping }}</b-tag>
-                  </b-taglist>
-                </div>
-              </b-field>
-            </li>
-          </ul>
+
+          <b-field
+            grouped
+            group-multiline
+          >
+            <div class="control mb-1">
+              <b-taglist attached>
+                <b-tag
+                  type="is-dark"
+                  size="is-medium"
+                >Total</b-tag>
+                <b-tag
+                  type="is-info"
+                  size="is-medium"
+                >Q{{ item.total }}</b-tag>
+                <b-tag
+                  type="is-success"
+                  size="is-medium"
+                >{{ item.percentage }}%</b-tag>
+              </b-taglist>
+            </div>
+          </b-field>
+          <b-field
+            grouped
+            group-multiline
+          >
+            <div class="control">
+              <b-taglist attached>
+                <b-tag type="is-dark">&#x1F4B2;</b-tag>
+                <b-tag type="is-link">Q{{ item.actualPrice }}</b-tag>
+
+                <b-tag type="is-dark">&#x1F4B8;</b-tag>
+                <b-tag type="is-link">Q{{ item.actualFee }}</b-tag>
+
+                <b-tag type="is-dark">&#x1F69A;</b-tag>
+                <b-tag type="is-link">Q{{ item.shipping }}</b-tag>
+              </b-taglist>
+            </div>
+          </b-field>
 
         </div>
         <div class="column is-1">
@@ -162,33 +177,36 @@
   lang="ts"
   setup
 >
-import type { Item, ItemTotal, Order } from '~/types/amazon'
+import { type Item, type Params, type Order } from '~/types/amazon'
 
 const useParams = ref(true)
-const params = computed(() => ({
+const orders = ref<Array<Order>>([])
+const exchangeRate = ref(7.8)
+const params = computed((): Params => ({
   fee: useParams.value ? 0.03 : 0,
-  minimumFee: useParams.value ? 20 : 0,
-  exchangeRate: 7.7 //useParams.value ? 7.78 : 7.6
+  minimumFee: useParams.value ? 20 : 0
 }))
 
-const orders = ref<Array<Order>>([])
-
 const addOrder = () => {
-  let newOrder: Order = {
-    items: [],
-    totalShipping: 0.0,
+  const newOrder: Order = {
+    items: [] as Array<Item>,
+    totalShipping: 0.0
   }
 
   orders.value.push(newOrder)
 }
 
 const addItem = (order: Order) => {
-  let newItem: Item = {
-    name: "",
+  order.items.push({
+    name: `Item-${order.items.length + 1}`,
+    percentage: 0.0,
     price: 0.0,
-  }
-
-  order.items.push(newItem)
+    total: 0.0,
+    fee: 0.0,
+    shipping: 0.0,
+    actualPrice: 0.0,
+    actualFee: 0.0,
+  })
 }
 
 const removeItem = (order: Order, index: number) => {
@@ -200,48 +218,72 @@ const removeOrder = (index: number) => {
 }
 
 const orderTotal = (order: Order) => {
-  let total = 0
+  return roundUp(order.items.reduce((acc, item) => acc + item.total, 0))
+}
+
+
+const itemPercentage = (orderTotal: number, item: Item) => {
+  return roundUp((item.actualPrice / orderTotal) * 100)
+}
+
+const calculateOrder = (order: Order) => {
+  let totalFee = 0
+  let totalOrder = 0
+  //order.total = 0
+
   order.items.forEach((item) => {
-    total += +item.price
+    if (item.price === 0) {
+      return
+    }
+    item.actualPrice = roundUp(item.price * exchangeRate.value)
+    const itemFee = item.actualPrice * params.value.fee
+    item.fee = roundUp(Math.max(params.value.minimumFee, itemFee))
+
+    totalFee += +item.fee
+    totalOrder += +item.actualPrice
   })
 
-  return roundUp(+total)
+  order.items.forEach((item) => {
+    if (item.price === 0) {
+      return
+    }
+    item.percentage = itemPercentage(totalOrder, item)
+    item.shipping = roundUp(order.totalShipping * (item.percentage / 100))
+    item.actualFee = roundUp(totalFee * (item.percentage / 100))
+
+    item.total = roundUp(item.actualPrice + item.actualFee + item.shipping)
+    //order.total = order.total + item.total
+  })
 }
 
-const itemPercentage = (order: Order, item: Item) => {
-  return roundUp((item.price / orderTotal(order)) * 100)
-}
+const isUpdating = ref(false)
+watch(orders.value as Array<Order>, (newOrders: Array<Order>) => {
+  updateOrders(newOrders)
+}, { deep: true })
 
-const itemShipping = (order: Order, item: Item) => {
-  return roundUp(order.totalShipping * (itemPercentage(order, item) / 100))
-}
+watch(useParams, (newUseParams: boolean) => {
+  updateOrders()
+})
 
-const itemTotal = (order: Order, item: Item): ItemTotal => {
+watch(exchangeRate, (newExchangeRate: number) => {
+  updateOrders()
+})
 
-  const result: ItemTotal = {
-    price: roundUp(item.price * params.value.exchangeRate),
-    shipping: itemShipping(order, item),
-    total: 0,
-    fee: params.value.minimumFee
+const updateOrders = (o: Array<Order> = orders.value) => {
+  if (isUpdating.value) {
+    return
   }
-
-  const totalFee = roundUp((result.price + result.shipping) * params.value.fee)
-  if (totalFee > result.fee) {
-    result.fee = totalFee
-  }
-  result.total = roundUp(result.price + result.shipping + result.fee)
-  return result
-}
-
-const roundUp = (num: number, precision: number = 2) => {
-  precision = Math.pow(10, precision)
-  return Math.ceil(num * precision) / precision
+  isUpdating.value = true
+  o.forEach((order) => {
+    calculateOrder(order)
+  })
+  isUpdating.value = false
 }
 
 </script>
 
 <style>
 .columns:not(:last-child) {
-  margin-bottom: 0 !important;
+  margin-bottom: 0.5rem !important;
 }
 </style>
