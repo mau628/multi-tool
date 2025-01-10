@@ -111,7 +111,7 @@
                 <div class="control">
                   <b-taglist attached>
                     <b-tag type="is-dark">Tax</b-tag>
-                    <b-tag type="is-success">Q{{ itemTotal(order, item).tax }}</b-tag>
+                    <b-tag type="is-success">Q{{ itemTotal(order, item).fee }}</b-tag>
                   </b-taglist>
                 </div>
                 <div class="control">
@@ -222,20 +222,14 @@ const itemTotal = (order: Order, item: Item): ItemTotal => {
     price: roundUp(item.price * params.value.exchangeRate),
     shipping: itemShipping(order, item),
     total: 0,
-    tax: 0,
     fee: params.value.minimumFee
   }
 
-  const totalFee = (result.price + result.shipping) * params.value.fee
+  const totalFee = roundUp((result.price + result.shipping) * params.value.fee)
   if (totalFee > result.fee) {
-    result.fee = roundUp(totalFee)
+    result.fee = totalFee
   }
-  if (result.fee > 0) {
-    const itemTotal = roundUp(result.price + result.shipping)
-    result.tax = roundUp((result.price / itemTotal) * result.fee)
-    result.shipping = roundUp(result.shipping + ((result.shipping / itemTotal) * result.fee))
-  }
-  result.total = roundUp(result.price + result.shipping + result.tax)
+  result.total = roundUp(result.price + result.shipping + result.fee)
   return result
 }
 

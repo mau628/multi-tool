@@ -13,5 +13,4 @@ export interface ItemTotal {
   shipping: number;
   fee: number;
   total: number;
-  tax: number;
 }
