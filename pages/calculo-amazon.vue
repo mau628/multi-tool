@@ -168,7 +168,7 @@ const useParams = ref(true)
 const params = computed(() => ({
   fee: useParams.value ? 0.03 : 0,
   minimumFee: useParams.value ? 20 : 0,
-  exchangeRate: useParams.value ? 7.78 : 7.6
+  exchangeRate: 7.7 //useParams.value ? 7.78 : 7.6
 }))
 
 const orders = ref<Array<Order>>([])
